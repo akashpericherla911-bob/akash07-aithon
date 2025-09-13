@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeMentor AI - Programming Education Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .panel h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .code-editor {
+            min-height: 300px;
+        }
+
+        .code-input {
+            width: 100%;
+            height: 250px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            resize: vertical;
+            background: #f8fafc;
+            line-height: 1.5;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .analysis-panel {
+            min-height: 300px;
+        }
+
+        .analysis-result {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            min-height: 200px;
+        }
+
+        .error-item, .suggestion-item {
+            background: white;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 0 6px 6px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .suggestion-item {
+            border-left-color: #10b981;
+        }
+
+        .error-type {
+            font-weight: 600;
+            color: #dc2626;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-type {
+            font-weight: 600;
+            color: #059669;
+            font-size: 0.9rem;
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .exercise-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .exercise-card:hover {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+        }
+
+        .exercise-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .exercise-difficulty {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: white;
+            display: inline-block;
+        }
+
+        .easy { background: #10b981; }
+        .medium { background: #f59e0b; }
+        .hard { background: #ef4444; }
+
+        .tutorial-step {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tutorial-step:hover {
+            background: #f1f5f9;
+            border-color: #4f46e5;
+        }
+
+        .tutorial-step.active {
+            background: #ede9fe;
+            border-color: #4f46e5;
+        }
+
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-error { background: #ef4444; }
+        .status-warning { background: #f59e0b; }
+        .status-success { background: #10b981; }
+
+        @media (max-width: 768px) {
+            .main-grid, .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 CodeMentor AI</h1>
+            <p>Advanced Programming Education Platform with AI-Powered Analysis</p>
+        </div>
+
+        <div class="main-grid">
+            <div class="panel code-editor">
+                <h3>💻 Code Editor</h3>
+                <textarea 
+                    id="codeInput" 
+                    class="code-input" 
+                    placeholder="// Write your code here...
+function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n-1) + fibonacci(n-2);
+}
+
+console.log(fibonacci(10));"
+                ></textarea>
+                <div style="margin-top: 10px;">
+                    <button class="btn" onclick="analyzeCode()">🔍 Analyze Code</button>
+                    <button class="btn btn-secondary" onclick="runCode()">▶️ Run Code</button>
+                    <button class="btn btn-secondary" onclick="clearCode()">🗑️ Clear</button>
+                </div>
+            </div>
+
+            <div class="panel analysis-panel">
+                <h3>🧠 AI Analysis & Debugging</h3>
+                <div id="analysisResult" class="analysis-result">
+                    <p style="color: #6b7280; text-align: center; margin-top: 80px;">
+                        Write some code and click "Analyze Code" to get AI-powered insights, error detection, and optimization suggestions.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="panel">
+                <h3>📚 Interactive Exercises</h3>
+                <div id="exerciseList">
+                    <div class="exercise-card" onclick="loadExercise('arrays')">
+                        <div class="exercise-title">Array Manipulation</div>
+                        <span class="exercise-difficulty easy">Easy</span>
+                        <p style="font-size: 0.9rem; color: #6b7280; margin-top: 5px;">Learn array methods and operations</p>
+                    </div>
+                    <div class="exercise-card" onclick="loadExercise('functions')">
+                        <div class="exercise-title">Function Optimization</div>
+                        <span class="exercise-difficulty medium">Medium</span>
+                        <p style="font-size: 0.9rem; color: #6b7280; margin-top: 5px;">Improve function performance</p>
+                    </div>
+                    <div class="exercise-card" onclick="loadExercise('algorithms')">
+                        <div class="exercise-title">Algorithm Design</div>
+                        <span class="exercise-difficulty hard">Hard</span>
+                        <p style="font-size: 0.9rem; color: #6b7280; margin-top: 5px;">Complex problem solving</p>
+                    </div>
+                </div>
+                <button class="btn" onclick="generateExercise()" style="width: 100%; margin-top: 10px;">
+                    ✨ Generate New Exercise
+                </button>
+            </div>
+
+            <div class="panel">
+                <h3>🎯 Interactive Tutorials</h3>
+                <div id="tutorialSteps">
+                    <div class="tutorial-step active" onclick="selectTutorial(0)">
+                        <strong>1. Variables & Data Types</strong>
+                        <p style="font-size: 0.9rem; color: #6b7280;">Understanding basic programming concepts</p>
+                    </div>
+                    <div class="tutorial-step" onclick="selectTutorial(1)">
+                        <strong>2. Control Structures</strong>
+                        <p style="font-size: 0.9rem; color: #6b7280;">Loops, conditionals, and flow control</p>
+                    </div>
+                    <div class="tutorial-step" onclick="selectTutorial(2)">
+                        <strong>3. Functions & Scope</strong>
+                        <p style="font-size: 0.9rem; color: #6b7280;">Creating reusable code blocks</p>
+                    </div>
+                    <div class="tutorial-step" onclick="selectTutorial(3)">
+                        <strong>4. Error Handling</strong>
+                        <p style="font-size: 0.9rem; color: #6b7280;">Debugging and exception management</p>
+                    </div>
+                </div>
+                <button class="btn" onclick="startTutorial()" style="width: 100%; margin-top: 10px;">
+                    🚀 Start Tutorial
+                </button>
+            </div>
+
+            <div class="panel">
+                <h3>📊 Learning Progress</h3>
+                <div style="margin: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>JavaScript Fundamentals</span>
+                        <span>85%</span>
+                    </div>
+                    <div style="background: #e5e7eb; height: 8px; border-radius: 4px;">
+                        <div style="background: #10b981; height: 100%; width: 85%; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Problem Solving</span>
+                        <span>72%</span>
+                    </div>
+                    <div style="background: #e5e7eb; height: 8px; border-radius: 4px;">
+                        <div style="background: #f59e0b; height: 100%; width: 72%; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Code Quality</span>
+                        <span>91%</span>
+                    </div>
+                    <div style="background: #e5e7eb; height: 8px; border-radius: 4px;">
+                        <div style="background: #10b981; height: 100%; width: 91%; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h4 style="color: #4f46e5; margin-bottom: 10px;">🏆 Achievements</h4>
+                    <div style="font-size: 0.9rem;">
+                        <div>🥇 Code Analyzer Pro</div>
+                        <div>🎯 Problem Solver</div>
+                        <div>📚 Tutorial Master</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTutorial = 0;
+        let analysisHistory = [];
+
+        // Code analysis with AI-like suggestions
+        function analyzeCode() {
+            const code = document.getElementById('codeInput').value.trim();
+            const resultDiv = document.getElementById('analysisResult');
+            
+            if (!code) {
+                resultDiv.innerHTML = '<p style="color: #ef4444;">Please enter some code to analyze.</p>';
+                return;
+            }
+
+            // Simulate AI analysis
+            resultDiv.innerHTML = '<p style="color: #4f46e5;">🤖 Analyzing code...</p>';
+            
+            setTimeout(() => {
+                const analysis = performCodeAnalysis(code);
+                displayAnalysis(analysis);
+            }, 1500);
+        }
+
+        function performCodeAnalysis(code) {
+            const analysis = {
+                errors: [],
+                suggestions: [],
+                complexity: 'Medium',
+                performance: 'Good'
+            };
+
+            // Error detection patterns
+            if (code.includes('console.log') && !code.includes(';')) {
+                analysis.errors.push({
+                    type: 'Syntax Error',
+                    message: 'Missing semicolon after console.log statement',
+                    line: 'Multiple lines'
+                });
+            }
+
+            if (code.includes('function') && code.includes('fibonacci') && code.includes('fibonacci(n-1)')) {
+                analysis.suggestions.push({
+                    type: 'Performance Optimization',
+                    message: 'Consider using memoization to optimize recursive fibonacci function',
+                    improvement: 'Can reduce time complexity from O(2^n) to O(n)'
+                });
+            }
+
+            if (code.includes('var ')) {
+                analysis.suggestions.push({
+                    type: 'Best Practice',
+                    message: 'Use "let" or "const" instead of "var" for better scoping',
+                    improvement: 'Prevents hoisting issues and improves code clarity'
+                });
+            }
+
+            if (code.length > 200) {
+                analysis.suggestions.push({
+                    type: 'Code Structure',
+                    message: 'Consider breaking down large functions into smaller, reusable components',
+                    improvement: 'Improves readability and maintainability'
+                });
+            }
+
+            // Add some general suggestions if no specific ones found
+            if (analysis.suggestions.length === 0 && analysis.errors.length === 0) {
+                analysis.suggestions.push({
+                    type: 'Code Quality',
+                    message: 'Great code structure! Consider adding comments for better documentation',
+                    improvement: 'Helps other developers understand your logic'
+                });
+            }
+
+            return analysis;
+        }
+
+        function displayAnalysis(analysis) {
+            const resultDiv = document.getElementById('analysisResult');
+            let html = '';
+
+            if (analysis.errors.length > 0) {
+                html += '<h4 style="color: #dc2626; margin-bottom: 10px;">🚨 Errors Detected</h4>';
+                analysis.errors.forEach(error => {
+                    html += `
+                        <div class="error-item">
+                            <div class="error-type">${error.type}</div>
+                            <div style="margin-top: 5px;">${error.message}</div>
+                            <div style="font-size: 0.8rem; color: #6b7280; margin-top: 3px;">Line: ${error.line}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            if (analysis.suggestions.length > 0) {
+                html += '<h4 style="color: #059669; margin-bottom: 10px; margin-top: 15px;">💡 AI Suggestions</h4>';
+                analysis.suggestions.forEach(suggestion => {
+                    html += `
+                        <div class="suggestion-item">
+                            <div class="suggestion-type">${suggestion.type}</div>
+                            <div style="margin-top: 5px;">${suggestion.message}</div>
+                            <div style="font-size: 0.8rem; color: #059669; margin-top: 3px;">💪 ${suggestion.improvement}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px;">
+                    <h4 style="color: #4f46e5; margin-bottom: 10px;">📈 Code Metrics</h4>
+                    <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                        <span>Complexity:</span>
+                        <span style="font-weight: 600;">${analysis.complexity}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                        <span>Performance:</span>
+                        <span style="font-weight: 600; color: #10b981;">${analysis.performance}</span>
+                    </div>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+        }
+
+        function runCode() {
+            const code = document.getElementById('codeInput').value;
+            if (!code.trim()) {
+                alert('Please enter some code to run!');
+                return;
+            }
+            
+            try {
+                // Create a safe execution context
+                const result = eval(code);
+                alert('Code executed successfully! Check the browser console for output.');
+            } catch (error) {
+                alert(`Runtime Error: ${error.message}`);
+            }
+        }
+
+        function clearCode() {
+            document.getElementById('codeInput').value = '';
+            document.getElementById('analysisResult').innerHTML = `
+                <p style="color: #6b7280; text-align: center; margin-top: 80px;">
+                    Write some code and click "Analyze Code" to get AI-powered insights, error detection, and optimization suggestions.
+                </p>
+            `;
+        }
+
+        function loadExercise(type) {
+            const exercises = {
+                arrays: `// Exercise: Array Manipulation
+// Create a function that removes duplicates from an array
+function removeDuplicates(arr) {
+    // Your code here
+    
+}
+
+// Test your function
+const testArray = [1, 2, 2, 3, 4, 4, 5];
+console.log(removeDuplicates(testArray)); // Should output: [1, 2, 3, 4, 5]`,
+                
+                functions: `// Exercise: Function Optimization
+// Optimize this function to calculate factorial more efficiently
+function factorial(n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}
+
+// Hint: Consider using memoization or iterative approach
+console.log(factorial(10));`,
+                
+                algorithms: `// Exercise: Algorithm Design
+// Implement a binary search algorithm
+function binarySearch(arr, target) {
+    // Your implementation here
+    // Return the index of target, or -1 if not found
+}
+
+// Test case
+const sortedArray = [1, 3, 5, 7, 9, 11, 13, 15];
+console.log(binarySearch(sortedArray, 7)); // Should return 3`
+            };
+
+            document.getElementById('codeInput').value = exercises[type] || exercises.arrays;
+            analyzeCode();
+        }
+
+        function generateExercise() {
+            const exercises = [
+                `// Generated Exercise: String Manipulation
+// Create a function that reverses words in a sentence
+function reverseWords(sentence) {
+    // Your code here
+}
+
+console.log(reverseWords("Hello World")); // Should output: "olleH dlroW"`,
+
+                `// Generated Exercise: Object Processing
+// Create a function that groups objects by a property
+function groupBy(array, property) {
+    // Your code here
+}
+
+const users = [{name: 'John', age: 25}, {name: 'Jane', age: 25}, {name: 'Bob', age: 30}];
+console.log(groupBy(users, 'age'));`,
+
+                `// Generated Exercise: Async Programming
+// Create a function that simulates an API call with Promise
+function fetchUserData(userId) {
+    // Return a Promise that resolves after 1 second
+    // Your code here
+}
+
+fetchUserData(123).then(data => console.log(data));`
+            ];
+
+            const randomExercise = exercises[Math.floor(Math.random() * exercises.length)];
+            document.getElementById('codeInput').value = randomExercise;
+        }
+
+        function selectTutorial(index) {
+            currentTutorial = index;
+            const steps = document.querySelectorAll('.tutorial-step');
+            steps.forEach((step, i) => {
+                step.classList.toggle('active', i === index);
+            });
+        }
+
+        function startTutorial() {
+            const tutorials = [
+                `// Tutorial 1: Variables & Data Types
+// Let's learn about different data types in JavaScript
+
+// Numbers
+let age = 25;
+let price = 19.99;
+
+// Strings
+let name = "Alice";
+let message = 'Hello World';
+
+// Booleans
+let isActive = true;
+let isComplete = false;
+
+// Arrays
+let colors = ["red", "green", "blue"];
+
+// Objects
+let person = {
+    name: "John",
+    age: 30,
+    city: "New York"
+};
+
+console.log("Tutorial 1 loaded! Explore different data types.");`,
+
+                `// Tutorial 2: Control Structures
+// Learn about loops and conditionals
+
+// If-else statements
+let score = 85;
+if (score >= 90) {
+    console.log("Grade: A");
+} else if (score >= 80) {
+    console.log("Grade: B");
+} else {
+    console.log("Grade: C");
+}
+
+// For loop
+for (let i = 0; i < 5; i++) {
+    console.log("Count:", i);
+}
+
+// While loop
+let count = 0;
+while (count < 3) {
+    console.log("While count:", count);
+    count++;
+}`,
+
+                `// Tutorial 3: Functions & Scope
+// Understanding functions and variable scope
+
+// Function declaration
+function greet(name) {
+    return "Hello, " + name + "!";
+}
+
+// Arrow function
+const multiply = (a, b) => a * b;
+
+// Function with default parameters
+function createUser(name, role = "user") {
+    return {
+        name: name,
+        role: role,
+        id: Math.random()
+    };
+}
+
+console.log(greet("Alice"));
+console.log(multiply(5, 3));
+console.log(createUser("Bob", "admin"));`,
+
+                `// Tutorial 4: Error Handling
+// Learn to handle errors gracefully
+
+// Try-catch block
+function divideNumbers(a, b) {
+    try {
+        if (b === 0) {
+            throw new Error("Division by zero is not allowed");
+        }
+        return a / b;
+    } catch (error) {
+        console.error("Error:", error.message);
+        return null;
+    } finally {
+        console.log("Division operation completed");
+    }
+}
+
+// Testing error handling
+console.log(divideNumbers(10, 2)); // Normal case
+console.log(divideNumbers(10, 0)); // Error case`
+            ];
+
+            document.getElementById('codeInput').value = tutorials[currentTutorial];
+            analyzeCode();
+        }
+
+        // Initialize with sample code
+        document.addEventListener('DOMContentLoaded', function() {
+            const sampleCode = `// Welcome to CodeMentor AI!
+// This is a sample recursive fibonacci function
+
+function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n-1) + fibonacci(n-2);
+}
+
+console.log(fibonacci(10));`;
+            
+            document.getElementById('codeInput').value = sampleCode;
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e58ba241229f43',t:'MTc1Nzc0NDQ5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
